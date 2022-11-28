@@ -27,28 +27,32 @@ const resolvePromise = <T>(
       return;
     }
 
-    let flag = false; // 表示 onfulfilled 或 onrejected 已经执行了
-    try {
-      then.call(
-        value,
-        (val) => {
-          if (!flag) {
-            flag = true;
-            resolvePromise(val, resolve, reject, pendingPromise);
+    // V8 会多创建一次 MicroTask
+    // @see https://juejin.cn/post/6953452438300917790
+    queueMicrotask(() => {
+      let flag = false; // 表示 onfulfilled 或 onrejected 已经执行了
+      try {
+        (then as Function).call(
+          value,
+          (val) => {
+            if (!flag) {
+              flag = true;
+              resolvePromise(val, resolve, reject, pendingPromise);
+            }
+          },
+          (err) => {
+            if (!flag) {
+              flag = true;
+              reject(err);
+            }
           }
-        },
-        (err) => {
-          if (!flag) {
-            flag = true;
-            reject(err);
-          }
+        );
+      } catch (error) {
+        if (!flag) {
+          reject(error);
         }
-      );
-    } catch (error) {
-      if (!flag) {
-        reject(error);
       }
-    }
+    });
   } else {
     resolve(value);
   }
