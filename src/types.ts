@@ -16,12 +16,8 @@ export interface IPromise<T> {
   ): IPromise<T | TResult>;
 }
 
-export type Result<T> =
-  | {
-      state: 'fulfilled';
-      value: T;
-    }
-  | {
-      state: 'rejected';
-      reason: any;
-    };
+export enum MyPromiseState {
+  PENDING = 'pending',
+  FULFILLED = 'fulfilled',
+  REJECTED = 'rejected',
+}
