@@ -27,9 +27,7 @@ const resolvePromise = <T>(
       return;
     }
 
-    // V8 会多创建一次 MicroTask
-    // @see https://juejin.cn/post/6953452438300917790
-    queueMicrotask(() => {
+    const callThen = () => {
       let flag = false; // 表示 onfulfilled 或 onrejected 已经执行了
       try {
         (then as Function).call(
@@ -52,7 +50,18 @@ const resolvePromise = <T>(
           reject(error);
         }
       }
-    });
+    };
+
+    if (value instanceof MyPromise) {
+      // 如果是 Promise，V8 会多创建一次 MicroTask
+      // @see https://juejin.cn/post/6953452438300917790
+      queueMicrotask(() => {
+        callThen();
+      });
+    } else {
+      // 非 Promise 的 Thenable 对象
+      callThen();
+    }
   } else {
     resolve(value);
   }
