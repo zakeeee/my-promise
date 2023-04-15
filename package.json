@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "tsx src/index.ts"
+    "dev": "tsx src/index.ts",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "promises-aplus-tests": "^2.1.2",
-    "tsx": "^3.12.1"
+    "tsx": "^3.12.1",
+    "vitest": "^0.30.1"
   }
 }
