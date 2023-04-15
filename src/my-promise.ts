@@ -28,27 +28,24 @@ const resolvePromise = <T>(
     }
 
     const callThen = () => {
-      let flag = false; // 表示 onfulfilled 或 onrejected 已经执行了
+      let called = false; // 表示 onfulfilled 或 onrejected 已经执行了
       try {
         (then as Function).call(
           value,
           (val) => {
-            if (!flag) {
-              flag = true;
-              resolvePromise(val, resolve, reject, pendingPromise);
-            }
+            if (called) return;
+            called = true;
+            resolvePromise(val, resolve, reject, pendingPromise);
           },
           (err) => {
-            if (!flag) {
-              flag = true;
-              reject(err);
-            }
+            if (called) return;
+            called = true;
+            reject(err);
           }
         );
       } catch (error) {
-        if (!flag) {
-          reject(error);
-        }
+        if (called) return;
+        reject(error);
       }
     };
 
